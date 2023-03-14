@@ -29,7 +29,7 @@ func Consumer(topic, server, from string) {
 	for run {
 		msg, err := c.ReadMessage(time.Second)
 		if err == nil {
-			log.Info("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
+			log.Printf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
 		} else if !err.(kafka.Error).IsTimeout() {
 			// The client will automatically try to recover from all errors.
 			// Timeout is not considered an error because it is raised by
