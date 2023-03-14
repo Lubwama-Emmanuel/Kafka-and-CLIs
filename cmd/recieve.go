@@ -1,4 +1,4 @@
-// nolint
+//nolint:errcheck
 package cmd
 
 import (
