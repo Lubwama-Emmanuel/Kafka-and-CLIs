@@ -20,9 +20,9 @@ func Producer(topic, server, message string) {
 			switch ev := e.(type) {
 			case *kafka.Message:
 				if ev.TopicPartition.Error != nil {
-					log.Info("Delivery failed: %v\n", ev.TopicPartition)
+					log.Printf("Delivery failed: %v\n", ev.TopicPartition)
 				} else {
-					log.Info("Message to %v\n", ev.TopicPartition)
+					log.Printf("Message to %v\n", ev.TopicPartition)
 				}
 			}
 		}
