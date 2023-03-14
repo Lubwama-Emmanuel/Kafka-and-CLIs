@@ -1,0 +1,29 @@
+# Binaries
+*.exe
+*.dll
+*.so
+*.dylib
+*.zip
+
+# Output of the go coverage tool and logs
+*.out
+*.xml
+*.log
+doc/*.html
+
+# Local specifics
+.idea/
+.vscode/
+/bin/*
+source.env
+__debug_bin
+
+# osx artifacts
+.DS_Store
+gen
+reports
+
+# Builds
+build/bin/*
+build/lint/*
+build/mockgen/*
