@@ -6,17 +6,16 @@ import (
 )
 
 func Producer(topic, server, message string) {
-
-	p, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": server})
+	producer, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": server})
 	if err != nil {
 		log.Panic(err)
 	}
 
-	defer p.Close()
+	defer producer.Close()
 
-	// Delivery report handler for produced messages
+	// Delivery report handler for produced messages.
 	go func() {
-		for e := range p.Events() {
+		for e := range producer.Events() {
 			switch ev := e.(type) {
 			case *kafka.Message:
 				if ev.TopicPartition.Error != nil {
@@ -28,12 +27,14 @@ func Producer(topic, server, message string) {
 		}
 	}()
 
-	// Produce message to topic (asynchronously)
-	if err := p.Produce(&kafka.Message{TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
-		Value: []byte(message)}, nil); err != nil {
-		log.Error("An error occured", err)
+	// Produce message to topic (asynchronously).
+	if err := producer.Produce(&kafka.Message{
+		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
+		Value:          []byte(message),
+	}, nil); err != nil {
+		log.Error("An error occurred", err)
 	}
 
-	// Wait for message deliveries before shutting down
-	p.Flush(15 * 1000)
+	// Wait for message deliveries before shutting down.
+	producer.Flush(15 * 1000)
 }

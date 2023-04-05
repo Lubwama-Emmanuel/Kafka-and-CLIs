@@ -7,11 +7,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// recieveCmd represents the recieve command
+// receiveCmd represents the receive command.
 var recieveCmd = &cobra.Command{
-	Use:   "recieve",
-	Short: "Command for consumer to recieve messages",
-	Long:  `Command for consumer to recieve messages`,
+	Use:   "receive",
+	Short: "Command for consumer to receive messages",
+	Long:  `Command for consumer to receive messages`,
 
 	Run: func(cmd *cobra.Command, args []string) {
 		channel, _ := cmd.Flags().GetString("channel")
@@ -23,7 +23,6 @@ var recieveCmd = &cobra.Command{
 		log.Info("You are sending through the server: ", server)
 		log.Info("You are sending through the group: ", group)
 		consumers.Consumer(channel, server, from)
-
 	},
 }
 
@@ -37,5 +36,4 @@ func init() {
 	recieveCmd.PersistentFlags().String("from", "", "The point to start receiving messages from either start|latest")
 	recieveCmd.MarkPersistentFlagRequired("from")
 	recieveCmd.PersistentFlags().String("group", "", "A group to receive messages from. Group is optional")
-
 }

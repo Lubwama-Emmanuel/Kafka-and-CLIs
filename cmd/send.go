@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// sendCmd represents the send command
+// sendCmd represents the send command.
 var sendCmd = &cobra.Command{
 	Use:   "send",
 	Short: "Command for producer to send a message",
@@ -21,9 +21,8 @@ var sendCmd = &cobra.Command{
 		log.Info("You have decided to send to the channel: ", channel)
 		log.Info("You are sending through the server: ", server)
 		log.Info("You are sending through the group: ", group)
-		log.Info("Message sent: ", group)
+		log.Info("Message sent: ", message)
 		producers.Producer(channel, server, message)
-
 	},
 }
 
