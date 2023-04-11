@@ -18,15 +18,19 @@ var sendCmd = &cobra.Command{
 		server, _ := cmd.Flags().GetString("server")
 		group, _ := cmd.Flags().GetString("group")
 		message, _ := cmd.Flags().GetString("message")
-		log.Info("You have decided to send to the channel: ", channel)
-		log.Info("You are sending through the server: ", server)
-		log.Info("You are sending through the group: ", group)
-		log.Info("Message sent: ", message)
-		producers.Producer(channel, server, message)
+		err := producers.Producer(channel, server, message)
+		if err != nil {
+			log.Error("error occurred", err)
+		} else {
+			log.Info("You have decided to send to the channel: ", channel)
+			log.Info("You are sending through the server: ", server)
+			log.Info("You are sending through the group: ", group)
+			log.Info("Message sent: ", message)
+		}
 	},
 }
 
-func init() {
+func SendInit() {
 	rootCmd.AddCommand(sendCmd)
 
 	sendCmd.PersistentFlags().String("channel", "", "Name of the channel you sending to")
