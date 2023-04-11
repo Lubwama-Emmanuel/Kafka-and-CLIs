@@ -26,14 +26,22 @@ var recieveCmd = &cobra.Command{
 	},
 }
 
-func init() {
+func ReceiveInit() {
 	rootCmd.AddCommand(recieveCmd)
 
-	recieveCmd.PersistentFlags().String("channel", "", "Name of the channel you receiving from")
-	recieveCmd.MarkPersistentFlagRequired("channel")
-	recieveCmd.PersistentFlags().String("server", "", "Port for communication")
-	recieveCmd.MarkPersistentFlagRequired("server")
-	recieveCmd.PersistentFlags().String("from", "", "The point to start receiving messages from either start|latest")
-	recieveCmd.MarkPersistentFlagRequired("from")
+	recieveflags := []struct {
+		flagName string
+		desc     string
+	}{
+		{"channel", "Name of the channel you receiving from"},
+		{"server", "Port for communication"},
+		{"from", "The point to start receiving messages from either start|latest"},
+	}
+
+	for i := range recieveflags {
+		recieveCmd.PersistentFlags().String(recieveflags[i].flagName, "", recieveflags[i].desc)
+		recieveCmd.MarkPersistentFlagRequired(recieveflags[i].flagName)
+	}
+
 	recieveCmd.PersistentFlags().String("group", "", "A group to receive messages from. Group is optional")
 }
