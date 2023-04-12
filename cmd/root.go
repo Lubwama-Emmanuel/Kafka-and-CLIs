@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -12,7 +12,7 @@ var rootCmd = &cobra.Command{
 	Use:   "Kafka-and-CLIs",
 	Short: "CLI with Kafka",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Hello, World!")
+		log.Info("Hello, World!")
 	},
 }
 
