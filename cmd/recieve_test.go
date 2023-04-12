@@ -59,12 +59,9 @@ func Executor(t *testing.T, c *cobra.Command, args ...string) error {
 	c.SetErr(buf)
 	c.SetArgs(args)
 
-	err := c.Execute()
-
-	if err != nil {
-		return fmt.Errorf("an error occured %w", err)
+	if err := c.Execute(); err != nil {
+		return fmt.Errorf("an error occurred %w", err)
 	}
 
 	return nil
-
 }
