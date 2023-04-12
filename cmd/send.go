@@ -25,6 +25,7 @@ func SendCmdRun(cmd *cobra.Command, args []string) error {
 	log.Info("You are sending through the server: ", server)
 	log.Info("You are sending through the group: ", group)
 	log.Info("Message sent: ", message)
+
 	return nil
 }
 
