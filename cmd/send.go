@@ -12,22 +12,20 @@ var sendCmd = &cobra.Command{
 	Use:   "send",
 	Short: "Command for producer to send a message",
 	Long:  `Command for producer to send a message`,
+	RunE:  SendCmdRun,
+}
 
-	Run: func(cmd *cobra.Command, args []string) {
-		channel, _ := cmd.Flags().GetString("channel")
-		server, _ := cmd.Flags().GetString("server")
-		group, _ := cmd.Flags().GetString("group")
-		message, _ := cmd.Flags().GetString("message")
-		err := producers.Producer(channel, server, message)
-		if err != nil {
-			log.Error("error occurred", err)
-		} else {
-			log.Info("You have decided to send to the channel: ", channel)
-			log.Info("You are sending through the server: ", server)
-			log.Info("You are sending through the group: ", group)
-			log.Info("Message sent: ", message)
-		}
-	},
+func SendCmdRun(cmd *cobra.Command, args []string) error {
+	channel, _ := cmd.Flags().GetString("channel")
+	server, _ := cmd.Flags().GetString("server")
+	group, _ := cmd.Flags().GetString("group")
+	message, _ := cmd.Flags().GetString("message")
+	producers.Producer(channel, server, message)
+	log.Info("You have decided to send to the channel: ", channel)
+	log.Info("You are sending through the server: ", server)
+	log.Info("You are sending through the group: ", group)
+	log.Info("Message sent: ", message)
+	return nil
 }
 
 func SendInit() {
