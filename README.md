@@ -8,12 +8,12 @@ A command-line-driven program that allows message exchange between consumers and
 ## Usage
 With one instance of the program, someone can run the command:<br>
 <code>
-    go main.go send --channel channel_name --server “server:port” --group group_name --message message_to_send
+    go run main.go send --channel channel_name --server “server:port” --group group_name --message message_to_send
 </code>
 
 With a second instance of the same program <br>
 <code>
-    go main.go receive --channel channel_name --from start_from --server “server:port” --group group_name 
+    go run main.go receive --channel channel_name --from start_from --server “server:port” --group group_name 
 </code>
 
 ## Additional Information
