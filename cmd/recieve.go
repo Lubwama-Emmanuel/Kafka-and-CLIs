@@ -7,7 +7,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// receiveCmd represents the receive command.
 var RecieveCmd = &cobra.Command{
 	Use:   "receive",
 	Short: "Command for consumer to receive messages",
@@ -20,11 +19,13 @@ func ReceiveCmdRun(cmd *cobra.Command, args []string) error {
 	server, _ := cmd.Flags().GetString("server")
 	from, _ := cmd.Flags().GetString("from")
 	group, _ := cmd.Flags().GetString("group")
+
 	log.Info("You have decided to receive from channel: ", channel)
 	log.Info("You are receiving from the: ", from)
 	log.Info("You are sending through the server: ", server)
 	log.Info("You are sending through the group: ", group)
 	consumers.Consumer(channel, server, from)
+
 	return nil
 }
 
