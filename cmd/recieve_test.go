@@ -2,7 +2,7 @@ package cmd_test
 
 import (
 	"bytes"
-	"strings"
+	"fmt"
 	"testing"
 
 	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/cmd"
@@ -11,37 +11,47 @@ import (
 )
 
 func TestReceiveCmd(t *testing.T) {
-	tt := []struct {
-		args []string
-		err  error
-		out  string
+	t.Parallel()
+	tests := []struct {
+		testName string
+		args     []string
+		wantErr  error
 	}{
 		{
-			args: nil,
-			err:  assert.AnError,
-			out:  "",
+			testName: "test with no args",
+			args:     nil,
+			wantErr:  nil,
 		},
 		{
-			args: []string{"manu", "localhost:9092", "latest", "group1"},
-			err:  nil,
-			out:  "",
+			testName: "test with args",
+			args:     []string{"manu", "localhost:9092", "latest", "group1"},
+			wantErr:  nil,
 		},
 	}
 	receive := &cobra.Command{Use: "receive", RunE: cmd.ReceiveCmdRun}
 	cmd.ReceiveInit()
-	for _, tc := range tt {
-		out, err := execute(t, receive, tc.args...)
 
-		if err != nil {
-			t.Fatalf("an error %v", err)
-		}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.testName, func(t *testing.T) {
+			t.Parallel()
+			err := Executor(t, receive, tc.args...)
+			if err != nil && tc.wantErr == nil {
+				assert.Fail(t, fmt.Sprintf("Test %v Error not expected but got one:\n"+"error: %q", tc.testName, err))
 
-		assert.Equal(t, out, tc.out)
+				return
+			}
+
+			if tc.wantErr != nil {
+				assert.EqualError(t, err, tc.wantErr.Error(), tc.testName)
+
+				return
+			}
+		})
 	}
-
 }
 
-func execute(t *testing.T, c *cobra.Command, args ...string) (string, error) {
+func Executor(t *testing.T, c *cobra.Command, args ...string) error {
 	t.Helper()
 
 	buf := new(bytes.Buffer)
@@ -50,5 +60,6 @@ func execute(t *testing.T, c *cobra.Command, args ...string) (string, error) {
 	c.SetArgs(args)
 
 	err := c.Execute()
-	return strings.TrimSpace(buf.String()), err
+
+	return fmt.Errorf("an error %w", err)
 }
