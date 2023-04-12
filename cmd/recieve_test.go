@@ -61,5 +61,10 @@ func Executor(t *testing.T, c *cobra.Command, args ...string) error {
 
 	err := c.Execute()
 
-	return fmt.Errorf("an error %w", err)
+	if err != nil {
+		return fmt.Errorf("an error occured %w", err)
+	}
+
+	return nil
+
 }
