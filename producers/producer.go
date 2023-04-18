@@ -1,20 +1,14 @@
 package producers
 
 import (
-	"fmt"
-
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	log "github.com/sirupsen/logrus"
 )
 
-func Producer(topic, server, message string) error {
-	producer, _ := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": server})
-
-	defer producer.Close()
-
+func (p *KafkaProducer) ProduceMessages(topic, message string) {
 	// Delivery report handler for produced messages.
 	go func() {
-		for e := range producer.Events() {
+		for e := range p.producer.Events() {
 			if ev, ok := e.(*kafka.Message); ok {
 				if ev.TopicPartition.Error != nil {
 					log.Error("Delivery failed:", ev.TopicPartition.Error)
@@ -24,16 +18,13 @@ func Producer(topic, server, message string) error {
 			}
 		}
 	}()
-
 	// Produce message to topic (asynchronously).
-	if err := producer.Produce(&kafka.Message{
+	if err := p.producer.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
 		Value:          []byte(message),
 	}, nil); err != nil {
-		return fmt.Errorf("an error occurred producing messages %w", err)
+		log.Error("an error occurred producing messages ", err)
 	}
 	// Wait for message deliveries before shutting down.
-	producer.Flush(15 * 1000)
-
-	return nil
+	p.producer.Flush(15 * 1000)
 }
