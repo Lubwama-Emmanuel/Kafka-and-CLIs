@@ -20,7 +20,11 @@ func SendCmdRun(cmd *cobra.Command, args []string) error {
 	server, _ := cmd.Flags().GetString("server")
 	group, _ := cmd.Flags().GetString("group")
 	message, _ := cmd.Flags().GetString("message")
-	producers.Producer(channel, server, message)
+	producer, err := producers.NewKafkaProducer(server)
+	if err != nil {
+		log.Error("an error", err)
+	}
+	producer.ProduceMessages(channel, message)
 	log.Info("You have decided to send to the channel: ", channel)
 	log.Info("You are sending through the server: ", server)
 	log.Info("You are sending through the group: ", group)

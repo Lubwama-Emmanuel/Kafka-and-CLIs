@@ -24,7 +24,12 @@ func ReceiveCmdRun(cmd *cobra.Command, args []string) error {
 	log.Info("You are receiving from the: ", from)
 	log.Info("You are sending through the server: ", server)
 	log.Info("You are sending through the group: ", group)
-	consumers.Consumer(channel, server, from)
+
+	consumer, err := consumers.NewKafkaConsumer(server, from)
+	if err != nil {
+		log.Error("an error", err)
+	}
+	consumer.ConsumeMessages(channel)
 
 	return nil
 }
