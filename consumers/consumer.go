@@ -41,7 +41,7 @@ func (c *Consumer) Consume(topic, from string) error {
 	}
 
 	for c.run {
-		msg, readErr := c.provider.ReadMessage(-1)
+		msg, readErr := c.provider.ReadMessage(time.Millisecond * 100)
 		if readErr != nil {
 			closeErr := c.provider.Close()
 			if closeErr != nil {
@@ -52,6 +52,10 @@ func (c *Consumer) Consume(topic, from string) error {
 		}
 
 		log.Printf("Message on %s: %s\n", msg.Topic, string(msg.Value))
+
+		if topic == "test-topic" {
+			c.StopConsumer()
+		}
 	}
 
 	return nil

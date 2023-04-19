@@ -2,54 +2,84 @@
 package consumers_test
 
 import (
-	"errors"
 	"fmt"
 	"testing"
+	"time"
+
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/consumers"
-	"github.com/stretchr/testify/assert"
+	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/consumers/mock"
 )
 
-func TestConsumer(t *testing.T) {
+func Test_Consume(t *testing.T) {
 	t.Parallel()
+
 	type args struct {
-		topic  string
-		server string
-		from   string
+		topic string
+		from  string
+	}
+
+	type fields struct {
+		provider *mock.MockProvider
 	}
 
 	tests := []struct {
 		testName string
+		prepare  func(t *testing.T, f *fields)
 		args     args
-		wantErr  error
+		wantErr  assert.ErrorAssertionFunc
 	}{
 		{
-			testName: "Test with right configs",
-			args: args{
-				topic: "manu", server: "localhost:9092", from: "latest",
+			testName: "success",
+			prepare: func(t *testing.T, f *fields) {
+				f.provider.EXPECT().SubscribeTopics([]string{"test-topic"}).Return(nil)
+
+				f.provider.EXPECT().ReadMessage(time.Millisecond*100).Return(consumers.Message{}, nil)
 			},
-			wantErr: nil,
+			args: args{
+				topic: "test-topic", from: "latest",
+			},
+			wantErr: assert.NoError,
 		},
 		{
-			testName: "Test with wrong auto offset topic",
-			args: args{
-				topic: "manu", server: "", from: "piwoi",
+			testName: "error/subscribe",
+			prepare: func(t *testing.T, f *fields) {
+				f.provider.EXPECT().SubscribeTopics(gomock.Any()).Return(assert.AnError)
 			},
-			wantErr: errors.New("error creating consumer Invalid value \"piwoi\" for configuration property \"auto.offset.reset\""), //nolint:lll
+			args: args{
+				topic: "test-topic", from: "latest",
+			},
+			wantErr: assert.Error,
 		},
 		{
-			testName: "Test without any args provided",
-			args: args{
-				topic: "manu", server: "", from: "",
+			testName: "error/read",
+			prepare: func(t *testing.T, f *fields) {
+				f.provider.EXPECT().SubscribeTopics(gomock.Any()).Return(nil)
+
+				f.provider.EXPECT().ReadMessage(gomock.Any()).Return(consumers.Message{}, assert.AnError)
+
+				f.provider.EXPECT().Close().Return(nil)
 			},
-			wantErr: errors.New("error creating consumer Configuration property \"auto.offset.reset\" cannot be set to empty value"), //nolint:lll
+			args: args{
+				topic: "test-topic", from: "latest",
+			},
+			wantErr: assert.Error,
 		},
 		{
-			testName: "Test without any args provided",
-			args: args{
-				topic: "", server: "", from: "latest",
+			testName: "error/read then close error",
+			prepare: func(t *testing.T, f *fields) {
+				f.provider.EXPECT().SubscribeTopics(gomock.Any()).Return(nil)
+
+				f.provider.EXPECT().ReadMessage(gomock.Any()).Return(consumers.Message{}, assert.AnError)
+
+				f.provider.EXPECT().Close().Return(assert.AnError)
 			},
-			wantErr: errors.New("error subscribing to topics Local: Invalid argument or configuration"),
+			args: args{
+				topic: "test-topic", from: "latest",
+			},
+			wantErr: assert.Error,
 		},
 	}
 
@@ -57,8 +87,18 @@ func TestConsumer(t *testing.T) {
 		tc := tc
 		t.Run(tc.testName, func(t *testing.T) {
 			t.Parallel()
+			ctrl := gomock.NewController(t)
 
-			consumer := consumers.NewConsumer(mockProvider)
+			f := fields{
+				provider: mock.NewMockProvider(ctrl),
+			}
+
+			if tc.prepare != nil {
+				tc.prepare(t, &f)
+			}
+
+			consumer := consumers.NewConsumer(f.provider)
+			consumer.StartConsumer()
 
 			err := consumer.Consume(tc.args.topic, tc.args.from)
 
@@ -66,8 +106,13 @@ func TestConsumer(t *testing.T) {
 				assert.Fail(t, fmt.Sprintf("Test %v Error not expected but got one:\n"+"error: %q", tc.testName, err))
 				return
 			}
-			if tc.wantErr != nil {
-				assert.EqualError(t, err, tc.wantErr.Error(), tc.testName)
+
+			// if tc.wantErr != nil {
+			// 	assert.EqualError(t, err, tc.wantErr.Error(), tc.testName)
+			// 	return
+			// }
+
+			if !tc.wantErr(t, err, fmt.Sprintf("Consume(%v, %v)", tc.args.topic, &tc.args.from)) {
 				return
 			}
 		})
