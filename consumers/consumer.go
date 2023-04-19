@@ -2,36 +2,65 @@ package consumers
 
 import (
 	"fmt"
+	"time"
 
-	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	log "github.com/sirupsen/logrus"
 )
 
-func Consumer(topic, server, from string) error {
-	consumer, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers": server,
-		"group.id":          "myGroup",
-		"auto.offset.reset": from,
-	})
-	if err != nil {
-		return fmt.Errorf("error creating consumer %w", err)
-	}
+type Provider interface {
+	SetUp(ConsumerConfig) error
+	SubscribeTopics([]string) error
+	ReadMessage(time.Duration) (Message, error)
+	Close() error
+}
 
-	subErr := consumer.SubscribeTopics([]string{topic}, nil)
+type ConsumerConfig struct {
+	Host   string
+	Group  string
+	Offset string
+}
+
+type Message struct {
+	Topic string
+	Value []byte
+}
+
+type Consumer struct {
+	provider Provider
+	run      bool
+}
+
+func NewConsumer(provider Provider) *Consumer {
+	return &Consumer{provider: provider}
+}
+
+func (c *Consumer) Consume(topic, from string) error {
+	subErr := c.provider.SubscribeTopics([]string{topic})
 	if subErr != nil {
 		return fmt.Errorf("error subscribing to topics %w", subErr)
 	}
 
-	run := true
-	for run {
-		msg, err := consumer.ReadMessage(-1)
-		if err != nil {
-			consumer.Close()
-			return fmt.Errorf("an error occurred %w", err)
+	for c.run {
+		msg, readErr := c.provider.ReadMessage(-1)
+		if readErr != nil {
+			closeErr := c.provider.Close()
+			if closeErr != nil {
+				return fmt.Errorf("error closing consumer %w", closeErr)
+			}
+
+			return fmt.Errorf("an error occurred while reading from provider %w", readErr)
 		}
 
-		log.Printf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
+		log.Printf("Message on %s: %s\n", msg.Topic, string(msg.Value))
 	}
 
 	return nil
+}
+
+func (c *Consumer) StartConsumer() {
+	c.run = true
+}
+
+func (c *Consumer) StopConsumer() {
+	c.run = false
 }

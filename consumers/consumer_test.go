@@ -57,7 +57,10 @@ func TestConsumer(t *testing.T) {
 		tc := tc
 		t.Run(tc.testName, func(t *testing.T) {
 			t.Parallel()
-			err := consumers.Consumer(tc.args.topic, tc.args.server, tc.args.from)
+
+			consumer := consumers.NewConsumer(mockProvider)
+
+			err := consumer.Consume(tc.args.topic, tc.args.from)
 
 			if err != nil && tc.wantErr == nil {
 				assert.Fail(t, fmt.Sprintf("Test %v Error not expected but got one:\n"+"error: %q", tc.testName, err))
