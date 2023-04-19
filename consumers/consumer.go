@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/models"
 	log "github.com/sirupsen/logrus"
 )
 
 type Provider interface {
 	SetUp(ConsumerConfig) error
 	SubscribeTopics([]string) error
-	ReadMessage(time.Duration) (Message, error)
+	ReadMessage(time.Duration) (models.Message, error)
 	Close() error
 }
 
@@ -18,11 +19,6 @@ type ConsumerConfig struct {
 	Host   string
 	Group  string
 	Offset string
-}
-
-type Message struct {
-	Topic string
-	Value []byte
 }
 
 type Consumer struct {

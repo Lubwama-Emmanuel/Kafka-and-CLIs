@@ -11,6 +11,7 @@ import (
 
 	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/consumers"
 	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/consumers/mock"
+	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/models"
 )
 
 func Test_Consume(t *testing.T) {
@@ -36,7 +37,7 @@ func Test_Consume(t *testing.T) {
 			prepare: func(t *testing.T, f *fields) {
 				f.provider.EXPECT().SubscribeTopics([]string{"test-topic"}).Return(nil)
 
-				f.provider.EXPECT().ReadMessage(time.Millisecond*100).Return(consumers.Message{}, nil)
+				f.provider.EXPECT().ReadMessage(time.Millisecond*100).Return(models.Message{}, nil)
 			},
 			args: args{
 				topic: "test-topic", from: "latest",
@@ -58,7 +59,7 @@ func Test_Consume(t *testing.T) {
 			prepare: func(t *testing.T, f *fields) {
 				f.provider.EXPECT().SubscribeTopics(gomock.Any()).Return(nil)
 
-				f.provider.EXPECT().ReadMessage(gomock.Any()).Return(consumers.Message{}, assert.AnError)
+				f.provider.EXPECT().ReadMessage(gomock.Any()).Return(models.Message{}, assert.AnError)
 
 				f.provider.EXPECT().Close().Return(nil)
 			},
@@ -72,7 +73,7 @@ func Test_Consume(t *testing.T) {
 			prepare: func(t *testing.T, f *fields) {
 				f.provider.EXPECT().SubscribeTopics(gomock.Any()).Return(nil)
 
-				f.provider.EXPECT().ReadMessage(gomock.Any()).Return(consumers.Message{}, assert.AnError)
+				f.provider.EXPECT().ReadMessage(gomock.Any()).Return(models.Message{}, assert.AnError)
 
 				f.provider.EXPECT().Close().Return(assert.AnError)
 			},

@@ -9,6 +9,7 @@ import (
 	time "time"
 
 	consumers "github.com/Lubwama-Emmanuel/Kafka-and-CLIs/consumers"
+	models "github.com/Lubwama-Emmanuel/Kafka-and-CLIs/models"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -50,10 +51,10 @@ func (mr *MockProviderMockRecorder) Close() *gomock.Call {
 }
 
 // ReadMessage mocks base method.
-func (m *MockProvider) ReadMessage(arg0 time.Duration) (consumers.Message, error) {
+func (m *MockProvider) ReadMessage(arg0 time.Duration) (models.Message, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ReadMessage", arg0)
-	ret0, _ := ret[0].(consumers.Message)
+	ret0, _ := ret[0].(models.Message)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
