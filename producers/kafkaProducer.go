@@ -1,6 +1,8 @@
 package producers
 
 import (
+	"fmt"
+
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 )
 
@@ -16,12 +18,11 @@ type KafkaProducer struct {
 
 func NewKafkaProducer(server string) (*KafkaProducer, error) {
 	producer, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": server})
-
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("an error occurred: %w", err)
 	}
 
-	return &KafkaProducer{producer}, err
+	return &KafkaProducer{producer}, nil
 }
 
 func (p *KafkaProducer) Close() {
@@ -33,10 +34,15 @@ func (p *KafkaProducer) Events() chan kafka.Event {
 }
 
 func (p *KafkaProducer) Send(topic, message string) error {
-	return p.producer.Produce(&kafka.Message{
+	err := p.producer.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
 		Value:          []byte(message),
 	}, nil)
+	if err != nil {
+		return fmt.Errorf("an error occurred: %w", err)
+	}
+
+	return nil
 }
 
 func (p *KafkaProducer) Flush(timeoutMs int) int {
