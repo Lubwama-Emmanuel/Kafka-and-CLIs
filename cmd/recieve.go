@@ -25,10 +25,11 @@ func ReceiveCmdRun(cmd *cobra.Command, args []string) error {
 	log.Info("You are sending through the server: ", server)
 	log.Info("You are sending through the group: ", group)
 
-	consumer, err := consumers.NewKafkaConsumer(server, from)
+	consumer, err := consumers.NewKafkaConsumer(server, from, group)
 	if err != nil {
 		log.Error("an error", err)
 	}
+
 	consumer.ConsumeMessages(channel)
 
 	return nil
@@ -44,12 +45,11 @@ func ReceiveInit() {
 		{"channel", "Name of the channel you receiving from"},
 		{"server", "Port for communication"},
 		{"from", "The point to start receiving messages from either start|latest"},
+		{"group", "A group to receive messages from"},
 	}
 
 	for i := range recieveflags {
 		RecieveCmd.PersistentFlags().String(recieveflags[i].flagName, "", recieveflags[i].desc)
 		RecieveCmd.MarkPersistentFlagRequired(recieveflags[i].flagName)
 	}
-
-	RecieveCmd.PersistentFlags().String("group", "", "A group to receive messages from. Group is optional")
 }
