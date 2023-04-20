@@ -2,6 +2,7 @@
 package cmd
 
 import (
+	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/blockers"
 	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/producers"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -21,12 +22,16 @@ func SendCmdRun(cmd *cobra.Command, args []string) error {
 	group, _ := cmd.Flags().GetString("group")
 	message, _ := cmd.Flags().GetString("message")
 
-	producer, err := producers.NewKafkaProducer(server)
+	// creating a producer instance from the received flags
+	producer, err := blockers.NewKafkaProducer(server)
 	if err != nil {
-		log.Error("an error", err)
+		log.Error("an error occurred")
 	}
 
-	producer.ProduceMessages(channel, message)
+	producerInstance := producers.NewProducer(producer)
+
+	producerInstance.ProduceMessages(channel, message)
+
 	log.Info("You have decided to send to the channel: ", channel)
 	log.Info("You are sending through the server: ", server)
 	log.Info("You are sending through the group: ", group)
