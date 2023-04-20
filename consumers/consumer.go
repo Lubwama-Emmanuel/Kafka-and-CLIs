@@ -1,6 +1,7 @@
 package consumers
 
 import (
+	"fmt"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -8,6 +9,7 @@ import (
 	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/models"
 )
 
+//go:generate mockgen -destination=mocks/mock_consumer.go -package=mocks . Provider
 type Provider interface {
 	Subscribe(topic string) error
 	ReadMessage(time.Duration) (models.Message, error)
@@ -29,21 +31,26 @@ func NewConsumer(provider Provider) *Consumer {
 	return &Consumer{provider: provider}
 }
 
-func (c *Consumer) ConsumeMessages(topic string) {
+func (c *Consumer) ConsumeMessages(topic string) error {
 	subErr := c.provider.Subscribe(topic)
 	if subErr != nil {
-		log.Error("subscription error", subErr)
+		return fmt.Errorf("subscription error %w", subErr)
 	}
 
 	for c.run {
-		msg, err := c.provider.ReadMessage(-1)
+		msg, err := c.provider.ReadMessage(time.Millisecond * 100)
 		if err != nil {
 			c.provider.Close()
-			log.Error("read messages error", err)
+			return fmt.Errorf("read messages error %w", subErr)
 		}
 
 		log.Printf("Message: %s\n", string(msg.Value))
+
+		if topic == "test_topic" {
+			c.StopConsumer()
+		}
 	}
+	return nil
 }
 
 func (c *Consumer) StartConsumer() {

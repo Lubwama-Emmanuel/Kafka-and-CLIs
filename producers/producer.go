@@ -7,6 +7,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+//go:generate mockgen -destination=mocks/mock_producer.go -package=pmocks . Provider
+
 type Provider interface {
 	Produce(topic, message string) error
 	Events() chan kafka.Event
