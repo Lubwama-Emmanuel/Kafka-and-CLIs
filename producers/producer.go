@@ -1,14 +1,35 @@
 package producers
 
 import (
+	"fmt"
+
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	log "github.com/sirupsen/logrus"
 )
 
-func (p *KafkaProducer) ProduceMessages(topic, message string) {
+type Provider interface {
+	Produce(topic, message string) error
+	Events() chan kafka.Event
+	Flush(timeoutMs int)
+}
+
+type Messsage struct {
+	TopicPartition string
+	Value          []byte
+}
+
+type Producer struct {
+	provider Provider
+}
+
+func NewProducer(provider Provider) *Producer {
+	return &Producer{provider: provider}
+}
+
+func (p *Producer) ProduceMessages(topic, message string) error {
 	// Delivery report handler for produced messages.
 	go func() {
-		for e := range p.producer.Events() {
+		for e := range p.provider.Events() {
 			if ev, ok := e.(*kafka.Message); ok {
 				if ev.TopicPartition.Error != nil {
 					log.Error("Delivery failed:", ev.TopicPartition.Error)
@@ -18,13 +39,13 @@ func (p *KafkaProducer) ProduceMessages(topic, message string) {
 			}
 		}
 	}()
+
 	// Produce message to topic (asynchronously).
-	if err := p.producer.Produce(&kafka.Message{
-		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
-		Value:          []byte(message),
-	}, nil); err != nil {
-		log.Error("an error occurred producing messages ", err)
+	if err := p.provider.Produce(topic, message); err != nil {
+		return fmt.Errorf("an error occurred producing messages %w", err)
 	}
 	// Wait for message deliveries before shutting down.
-	p.producer.Flush(15 * 1000)
+	p.provider.Flush(15 * 1000)
+
+	return nil
 }
