@@ -25,12 +25,14 @@ func SendCmdRun(cmd *cobra.Command, args []string) error {
 	// creating a producer instance from the received flags
 	producer, err := blockers.NewKafkaProducer(server)
 	if err != nil {
-		log.Error("an error occurred")
+		log.Error("an error occurred", err)
 	}
 
 	producerInstance := producers.NewProducer(producer)
 
-	producerInstance.ProduceMessages(channel, message)
+	if err := producerInstance.ProduceMessages(channel, message); err != nil {
+		log.Error("an error occurred", err)
+	}
 
 	log.Info("You have decided to send to the channel: ", channel)
 	log.Info("You are sending through the server: ", server)
