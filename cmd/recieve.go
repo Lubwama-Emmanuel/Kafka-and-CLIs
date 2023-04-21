@@ -30,12 +30,14 @@ func ReceiveCmdRun(cmd *cobra.Command, args []string) error {
 
 	consumer, err := blockers.NewKafkaConsumer(configs)
 	if err != nil {
-		log.Error("an error occurred", err)
+		log.Error("an error occurred here: ", err)
 	}
 
 	consumerInstance := consumers.NewConsumer(consumer)
 	consumerInstance.StartConsumer()
-	consumerInstance.ConsumeMessages(channel)
+	if err := consumerInstance.ConsumeMessages(channel); err != nil { //nolint:wsl
+		log.Error("an error occurred: ", err)
+	}
 
 	log.Info("You have decided to receive from channel: ", channel)
 	log.Info("You are receiving from the: ", from)
