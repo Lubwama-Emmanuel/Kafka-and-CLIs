@@ -20,7 +20,7 @@ func NewKafkaConsumer(config consumers.ConsumerConfig) (*KafkaConsumer, error) {
 	consumer, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers": config.Server,
 		"group.id":          config.Group,
-		"auto.offset.reset": config.From,
+		"auto.offset.reset": "latest",
 	})
 	if err != nil {
 		return nil, fmt.Errorf("an error occurred: %w", err)
@@ -72,7 +72,7 @@ func NewKafkaProducer(server string) (*KafkaProducer, error) {
 		return nil, fmt.Errorf("an error occurred: %w", err)
 	}
 
-	return &KafkaProducer{producer}, nil
+	return &KafkaProducer{producer: producer}, nil
 }
 
 // produces messages to a given topic.
@@ -89,8 +89,16 @@ func (k *KafkaProducer) Produce(topic, message string) error {
 }
 
 // creates produce events.
-func (k *KafkaProducer) Events() chan kafka.Event {
-	return k.producer.Events()
+func (k *KafkaProducer) KafkaMessage() error {
+	for e := range k.producer.Events() {
+		if ev, ok := e.(*kafka.Message); ok {
+			if ev.TopicPartition.Error != nil {
+				return fmt.Errorf("delivery failed: %w", ev.TopicPartition.Error)
+			}
+		}
+	}
+
+	return nil
 }
 
 // Stops the produces after a given time.
