@@ -1,6 +1,7 @@
 package cmd_test
 
 import (
+	"bytes"
 	"fmt"
 	"testing"
 
@@ -47,4 +48,19 @@ func TestSendCmd(t *testing.T) {
 			}
 		})
 	}
+}
+
+func Executor(t *testing.T, c *cobra.Command, args ...string) error {
+	t.Helper()
+
+	buf := new(bytes.Buffer)
+	c.SetOut(buf)
+	c.SetErr(buf)
+	c.SetArgs(args)
+
+	if err := c.Execute(); err != nil {
+		return fmt.Errorf("an error occurred %w", err)
+	}
+
+	return nil
 }

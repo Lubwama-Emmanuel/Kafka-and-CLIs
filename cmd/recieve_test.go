@@ -1,7 +1,6 @@
 package cmd_test
 
 import (
-	"bytes"
 	"fmt"
 	"testing"
 
@@ -12,9 +11,11 @@ import (
 
 func TestReceiveCmd(t *testing.T) {
 	t.Parallel()
+	type args []string
+
 	tests := []struct {
 		testName string
-		args     []string
+		args     args
 		wantErr  error
 	}{
 		{
@@ -24,7 +25,7 @@ func TestReceiveCmd(t *testing.T) {
 		},
 		{
 			testName: "test with args",
-			args:     []string{"manu", "localhost:9092", "latest", "group1"},
+			args:     args{"manu", "localhost:9092", "latest", "group1"},
 			wantErr:  nil,
 		},
 	}
@@ -38,7 +39,6 @@ func TestReceiveCmd(t *testing.T) {
 			err := Executor(t, receive, tc.args...)
 			if err != nil && tc.wantErr == nil {
 				assert.Fail(t, fmt.Sprintf("Test %v Error not expected but got one:\n"+"error: %q", tc.testName, err))
-
 				return
 			}
 
@@ -49,19 +49,4 @@ func TestReceiveCmd(t *testing.T) {
 			}
 		})
 	}
-}
-
-func Executor(t *testing.T, c *cobra.Command, args ...string) error {
-	t.Helper()
-
-	buf := new(bytes.Buffer)
-	c.SetOut(buf)
-	c.SetErr(buf)
-	c.SetArgs(args)
-
-	if err := c.Execute(); err != nil {
-		return fmt.Errorf("an error occurred %w", err)
-	}
-
-	return nil
 }
