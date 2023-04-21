@@ -28,10 +28,7 @@ func ReceiveCmdRun(cmd *cobra.Command, args []string) error {
 		From:   from,
 	}
 
-	consumer, err := blockers.NewKafkaConsumer(configs)
-	if err != nil {
-		log.Error("an error occurred here: ", err)
-	}
+	consumer, _ := blockers.NewKafkaConsumer(configs)
 
 	consumerInstance := consumers.NewConsumer(consumer)
 	consumerInstance.StartConsumer()
