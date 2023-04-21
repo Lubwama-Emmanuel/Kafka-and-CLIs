@@ -1,6 +1,6 @@
 module github.com/Lubwama-Emmanuel/Kafka-and-CLIs
 
-go 1.20
+go 1.17
 
 require (
 	github.com/confluentinc/confluent-kafka-go/v2 v2.0.2
