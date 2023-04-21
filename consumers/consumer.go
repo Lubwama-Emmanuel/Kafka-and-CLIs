@@ -50,6 +50,7 @@ func (c *Consumer) ConsumeMessages(topic string) error {
 			c.StopConsumer()
 		}
 	}
+
 	return nil
 }
 
