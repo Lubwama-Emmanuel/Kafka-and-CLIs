@@ -11,9 +11,11 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "Kafka-and-CLIs",
 	Short: "CLI with Kafka",
-	Run: func(cmd *cobra.Command, args []string) {
-		log.Info("Hello, World!")
-	},
+	Run:   RootCmdRun,
+}
+
+func RootCmdRun(cmd *cobra.Command, args []string) {
+	log.Info("Hello, World!")
 }
 
 func Execute() {
