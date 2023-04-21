@@ -3,16 +3,15 @@ package producers
 import (
 	"fmt"
 
-	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	log "github.com/sirupsen/logrus"
 )
 
-//go:generate mockgen -destination=mocks/mock_producer.go -package=pmocks . Provider
+//go:generate mockgen -destination=mocks/mock_producer.go -package=mocks . Provider
 
 type Provider interface {
 	Produce(topic, message string) error
-	Events() chan kafka.Event
 	Flush(timeoutMs int)
+	KafkaMessage() error
 }
 
 type Messsage struct {
@@ -31,14 +30,9 @@ func NewProducer(provider Provider) *Producer {
 func (p *Producer) ProduceMessages(topic, message string) error {
 	// Delivery report handler for produced messages.
 	go func() {
-		for e := range p.provider.Events() {
-			if ev, ok := e.(*kafka.Message); ok {
-				if ev.TopicPartition.Error != nil {
-					log.Error("Delivery failed:", ev.TopicPartition.Error)
-				} else {
-					log.Printf("Message to %v\n", ev.TopicPartition)
-				}
-			}
+		err := p.provider.KafkaMessage()
+		if err != nil {
+			log.Error("an error occurred")
 		}
 	}()
 
