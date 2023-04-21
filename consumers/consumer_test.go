@@ -48,7 +48,6 @@ func TestConsumeMessages(t *testing.T) {
 			},
 			prepare: func(t *testing.T, f *fields) {
 				f.provider.EXPECT().Subscribe(gomock.Any()).Return(assert.AnError)
-
 			},
 			wantErr: assert.Error,
 		},
@@ -62,6 +61,7 @@ func TestConsumeMessages(t *testing.T) {
 
 				f.provider.EXPECT().ReadMessage(gomock.Any()).Return(models.Message{}, assert.AnError)
 
+				f.provider.EXPECT().Close().Return(nil)
 			},
 			wantErr: assert.Error,
 		},
