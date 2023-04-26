@@ -2,40 +2,32 @@
 package cmd
 
 import (
+	"fmt"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/blockers"
-	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/consumers"
+	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/config"
 )
 
-var RecieveCmd = &cobra.Command{
-	Use:   "receive",
-	Short: "Command for consumer to receive messages",
-	Long:  `Command for consumer to receive messages`,
-	RunE:  ReceiveCmdRun,
-}
-
-func ReceiveCmdRun(cmd *cobra.Command, args []string) error {
+func (c *CMD) ReceiveCmdRun(cmd *cobra.Command, args []string) error {
 	channel, _ := cmd.Flags().GetString("channel")
 	server, _ := cmd.Flags().GetString("server")
 	from, _ := cmd.Flags().GetString("from")
 	group, _ := cmd.Flags().GetString("group")
 
-	configs := consumers.ConsumerConfig{
+	configs := config.ProviderConfig{
 		Server: server,
 		Group:  group,
 		From:   from,
 	}
 
-	consumer, err := blockers.NewKafkaConsumer(configs)
+	err := c.consumer.SetUpProvider(configs)
 	if err != nil {
-		log.Error("an error occurred here: ", err)
+		return fmt.Errorf("failed to setup consumer provider: %w", err)
 	}
 
-	consumerInstance := consumers.NewConsumer(consumer)
-	consumerInstance.StartConsumer()
-	if err := consumerInstance.ConsumeMessages(channel); err != nil { //nolint:wsl
+	if err := c.consumer.ConsumeMessages(channel); err != nil { //nolint:wsl
 		log.Error("an error occurred: ", err)
 	}
 
@@ -47,8 +39,15 @@ func ReceiveCmdRun(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func ReceiveInit() {
-	rootCmd.AddCommand(RecieveCmd)
+func (c *CMD) ReceiveInit() {
+	recieveCmd := &cobra.Command{
+		Use:   "receive",
+		Short: "Command for consumer to receive messages",
+		Long:  `Command for consumer to receive messages`,
+		RunE:  c.ReceiveCmdRun,
+	}
+
+	rootCmd.AddCommand(recieveCmd)
 
 	recieveflags := []struct {
 		flagName string
@@ -61,7 +60,7 @@ func ReceiveInit() {
 	}
 
 	for i := range recieveflags {
-		RecieveCmd.PersistentFlags().String(recieveflags[i].flagName, "", recieveflags[i].desc)
-		RecieveCmd.MarkPersistentFlagRequired(recieveflags[i].flagName)
+		recieveCmd.PersistentFlags().String(recieveflags[i].flagName, "", recieveflags[i].desc)
+		recieveCmd.MarkPersistentFlagRequired(recieveflags[i].flagName)
 	}
 }

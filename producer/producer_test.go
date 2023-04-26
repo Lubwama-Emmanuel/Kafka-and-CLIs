@@ -1,22 +1,22 @@
-package consumers_test
+package producer_test
 
 import (
 	"fmt"
 	"testing"
-	"time"
 
-	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/consumers"
-	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/consumers/mocks"
-	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/models"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/producer"
+	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/producer/mocks"
 )
 
-func TestConsumeMessages(t *testing.T) {
+func TestProduceMessages(t *testing.T) {
 	t.Parallel()
 
 	type args struct {
-		topic string
+		topic   string
+		message string
 	}
 
 	type fields struct {
@@ -32,36 +32,28 @@ func TestConsumeMessages(t *testing.T) {
 		{
 			testName: "success",
 			args: args{
-				topic: "test_topic",
+				topic:   "test_topic",
+				message: "message 1",
 			},
 			prepare: func(t *testing.T, f *fields) {
-				f.provider.EXPECT().Subscribe("test_topic").Return(nil)
+				f.provider.EXPECT().Produce("test_topic", "message 1").Return(nil)
 
-				f.provider.EXPECT().ReadMessage(time.Millisecond*100).Return(models.Message{}, nil)
+				f.provider.EXPECT().KafkaMessage().Return(nil).AnyTimes()
+
+				f.provider.EXPECT().Flush(15 * 1000)
 			},
 			wantErr: assert.NoError,
 		},
 		{
-			testName: "error/subscribe",
+			testName: "error/produce-kafkamessage",
 			args: args{
-				topic: "test_topic",
+				topic:   "test_topic",
+				message: "message 1",
 			},
 			prepare: func(t *testing.T, f *fields) {
-				f.provider.EXPECT().Subscribe(gomock.Any()).Return(assert.AnError)
-			},
-			wantErr: assert.Error,
-		},
-		{
-			testName: "error/read",
-			args: args{
-				topic: "test_topic",
-			},
-			prepare: func(t *testing.T, f *fields) {
-				f.provider.EXPECT().Subscribe(gomock.Any()).Return(nil)
+				f.provider.EXPECT().Produce(gomock.Any(), gomock.Any()).Return(assert.AnError)
 
-				f.provider.EXPECT().ReadMessage(gomock.Any()).Return(models.Message{}, assert.AnError)
-
-				f.provider.EXPECT().Close().Return(nil)
+				f.provider.EXPECT().KafkaMessage().Return(assert.AnError).AnyTimes()
 			},
 			wantErr: assert.Error,
 		},
@@ -73,6 +65,8 @@ func TestConsumeMessages(t *testing.T) {
 			t.Parallel()
 			ctrl := gomock.NewController(t)
 
+			defer ctrl.Finish()
+
 			f := fields{
 				provider: mocks.NewMockProvider(ctrl),
 			}
@@ -81,10 +75,9 @@ func TestConsumeMessages(t *testing.T) {
 				tc.prepare(t, &f)
 			}
 
-			consumer := consumers.NewConsumer(f.provider)
-			consumer.StartConsumer()
+			producer := producer.NewProducer(f.provider)
 
-			err := consumer.ConsumeMessages(tc.args.topic)
+			err := producer.ProduceMessages(tc.args.topic, tc.args.message)
 			if err != nil && tc.wantErr == nil {
 				assert.Fail(t, fmt.Sprintf("Test %v Error not expected but got one:\n"+"error: %q", tc.testName, err))
 				return

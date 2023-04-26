@@ -2,8 +2,8 @@
 package cmd
 
 import (
-	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/blockers"
-	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/producers"
+	
+	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/producer"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -16,14 +16,14 @@ var sendCmd = &cobra.Command{
 	RunE:  SendCmdRun,
 }
 
-func SendCmdRun(cmd *cobra.Command, args []string) error {
+func (c *CMD) SendCmdRun(cmd *cobra.Command, args []string) error {
 	channel, _ := cmd.Flags().GetString("channel")
 	server, _ := cmd.Flags().GetString("server")
 	group, _ := cmd.Flags().GetString("group")
 	message, _ := cmd.Flags().GetString("message")
 
 	// creating a producer instance from the received flags
-	producer, err := blockers.NewKafkaProducer(server)
+	producer, err := brokers.NewKafkaProducer(server)
 	if err != nil {
 		log.Error("an error occurred", err)
 	}
