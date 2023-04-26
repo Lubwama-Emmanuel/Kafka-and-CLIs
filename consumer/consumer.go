@@ -28,7 +28,12 @@ func NewConsumer(provider Provider) *Consumer {
 }
 
 func (c *Consumer) SetUpProvider(config config.ProviderConfig) error {
-	return c.provider.SetUp(config)
+	err := c.provider.SetUp(config)
+	if err != nil {
+		return fmt.Errorf("failed to setup provider %w", err)
+	}
+
+	return nil
 }
 
 func (c *Consumer) ConsumeMessages(topic string) error {

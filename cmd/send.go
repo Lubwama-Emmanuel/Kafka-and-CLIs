@@ -2,19 +2,13 @@
 package cmd
 
 import (
-	
-	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/producer"
+	"fmt"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-)
 
-// sendCmd represents the send command.
-var sendCmd = &cobra.Command{
-	Use:   "send",
-	Short: "Command for producer to send a message",
-	Long:  `Command for producer to send a message`,
-	RunE:  SendCmdRun,
-}
+	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/config"
+)
 
 func (c *CMD) SendCmdRun(cmd *cobra.Command, args []string) error {
 	channel, _ := cmd.Flags().GetString("channel")
@@ -23,15 +17,17 @@ func (c *CMD) SendCmdRun(cmd *cobra.Command, args []string) error {
 	message, _ := cmd.Flags().GetString("message")
 
 	// creating a producer instance from the received flags
-	producer, err := brokers.NewKafkaProducer(server)
-	if err != nil {
-		log.Error("an error occurred", err)
+	configs := config.ProviderConfig{
+		Server: server,
 	}
 
-	producerInstance := producers.NewProducer(producer)
+	err := c.producer.SetUpProvider(configs)
+	if err != nil {
+		return fmt.Errorf("failed to setup producer provider: %w", err)
+	}
 
-	if err := producerInstance.ProduceMessages(channel, message); err != nil {
-		log.Error("an error occurred", err)
+	if err := c.producer.ProduceMessages(channel, message); err != nil {
+		log.Error("an error occurred: ", err)
 	}
 
 	log.Info("You have decided to send to the channel: ", channel)
@@ -42,14 +38,27 @@ func (c *CMD) SendCmdRun(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func SendInit() {
+func (c *CMD) SendInit() {
+	sendCmd := &cobra.Command{
+		Use:   "send",
+		Short: "Command for producer to send a message",
+		Long:  `Command for producer to send a message`,
+		RunE:  c.SendCmdRun,
+	}
 	rootCmd.AddCommand(sendCmd)
 
-	sendCmd.PersistentFlags().String("channel", "", "Name of the channel you sending to")
-	sendCmd.MarkPersistentFlagRequired("channel")
-	sendCmd.PersistentFlags().String("server", "", "Port for communication")
-	sendCmd.MarkPersistentFlagRequired("server")
-	sendCmd.PersistentFlags().String("message", "", "Message to send")
-	sendCmd.MarkPersistentFlagRequired("message")
-	sendCmd.PersistentFlags().String("group", "", "Gruop producer is communicating to")
+	sendflags := []struct {
+		flagName string
+		desc     string
+	}{
+		{"channel", "Name of the channel you sending to"},
+		{"server", "Port for communication"},
+		{"message", "Message to send"},
+		{"group", "Group producer is communicating to"},
+	}
+
+	for i := range sendflags {
+		sendCmd.PersistentFlags().String(sendflags[i].flagName, "", sendflags[i].desc)
+		sendCmd.MarkPersistentFlagRequired(sendflags[i].flagName)
+	}
 }

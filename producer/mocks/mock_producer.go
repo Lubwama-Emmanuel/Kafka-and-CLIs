@@ -7,6 +7,7 @@ package mocks
 import (
 	reflect "reflect"
 
+	config "github.com/Lubwama-Emmanuel/Kafka-and-CLIs/config"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -33,6 +34,20 @@ func (m *MockProvider) EXPECT() *MockProviderMockRecorder {
 	return m.recorder
 }
 
+// DeliveryReport mocks base method.
+func (m *MockProvider) DeliveryReport() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeliveryReport")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeliveryReport indicates an expected call of DeliveryReport.
+func (mr *MockProviderMockRecorder) DeliveryReport() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeliveryReport", reflect.TypeOf((*MockProvider)(nil).DeliveryReport))
+}
+
 // Flush mocks base method.
 func (m *MockProvider) Flush(arg0 int) {
 	m.ctrl.T.Helper()
@@ -43,20 +58,6 @@ func (m *MockProvider) Flush(arg0 int) {
 func (mr *MockProviderMockRecorder) Flush(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Flush", reflect.TypeOf((*MockProvider)(nil).Flush), arg0)
-}
-
-// KafkaMessage mocks base method.
-func (m *MockProvider) KafkaMessage() error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "KafkaMessage")
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// KafkaMessage indicates an expected call of KafkaMessage.
-func (mr *MockProviderMockRecorder) KafkaMessage() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "KafkaMessage", reflect.TypeOf((*MockProvider)(nil).KafkaMessage))
 }
 
 // Produce mocks base method.
@@ -71,4 +72,18 @@ func (m *MockProvider) Produce(arg0, arg1 string) error {
 func (mr *MockProviderMockRecorder) Produce(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Produce", reflect.TypeOf((*MockProvider)(nil).Produce), arg0, arg1)
+}
+
+// SetUp mocks base method.
+func (m *MockProvider) SetUp(arg0 config.ProviderConfig) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetUp", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetUp indicates an expected call of SetUp.
+func (mr *MockProviderMockRecorder) SetUp(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetUp", reflect.TypeOf((*MockProvider)(nil).SetUp), arg0)
 }

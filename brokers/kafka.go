@@ -21,7 +21,7 @@ func NewKafkaBroker() *KafkaBroker {
 	return &KafkaBroker{}
 }
 
-func (c *KafkaBroker) SetUp(config config.ProviderConfig) error {
+func (k *KafkaBroker) SetUp(config config.ProviderConfig) error {
 	consumer, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers": config.Server,
 		"group.id":          config.Group,
@@ -38,15 +38,15 @@ func (c *KafkaBroker) SetUp(config config.ProviderConfig) error {
 		return fmt.Errorf("failed to set up kafka producer: %w", err)
 	}
 
-	c.consumer = consumer
-	c.producer = producer
+	k.consumer = consumer
+	k.producer = producer
 
 	return nil
 }
 
 // Subscribes to a given topic.
-func (c *KafkaBroker) Subscribe(topic string) error {
-	err := c.consumer.SubscribeTopics([]string{topic}, nil)
+func (k *KafkaBroker) Subscribe(topic string) error {
+	err := k.consumer.SubscribeTopics([]string{topic}, nil)
 	if err != nil {
 		return fmt.Errorf("an error occurred: %w", err)
 	}
@@ -55,8 +55,8 @@ func (c *KafkaBroker) Subscribe(topic string) error {
 }
 
 // Reads received messages.
-func (c *KafkaBroker) ReadMessage(time.Duration) (models.Message, error) {
-	msg, err := c.consumer.ReadMessage(-1)
+func (k *KafkaBroker) ReadMessage(time.Duration) (models.Message, error) {
+	msg, err := k.consumer.ReadMessage(-1)
 	if err != nil {
 		return models.Message{}, fmt.Errorf("an error occurred: %w", err)
 	}
@@ -65,8 +65,8 @@ func (c *KafkaBroker) ReadMessage(time.Duration) (models.Message, error) {
 }
 
 // Closes the consumer.
-func (c *KafkaBroker) Close() error {
-	if err := c.consumer.Close(); err != nil {
+func (k *KafkaBroker) Close() error {
+	if err := k.consumer.Close(); err != nil {
 		return fmt.Errorf("an error occurred: %w", err)
 	}
 
@@ -87,7 +87,7 @@ func (k *KafkaBroker) Produce(topic, message string) error {
 }
 
 // creates produce events.
-func (k *KafkaBroker) KafkaMessage() error {
+func (k *KafkaBroker) DeliveryReport() error {
 	for e := range k.producer.Events() {
 		if ev, ok := e.(*kafka.Message); ok {
 			if ev.TopicPartition.Error != nil {

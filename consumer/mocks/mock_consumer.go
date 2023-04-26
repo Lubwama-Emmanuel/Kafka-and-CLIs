@@ -8,7 +8,7 @@ import (
 	reflect "reflect"
 	time "time"
 
-	consumer "github.com/Lubwama-Emmanuel/Kafka-and-CLIs/consumer"
+	config "github.com/Lubwama-Emmanuel/Kafka-and-CLIs/config"
 	models "github.com/Lubwama-Emmanuel/Kafka-and-CLIs/models"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -66,7 +66,7 @@ func (mr *MockProviderMockRecorder) ReadMessage(arg0 interface{}) *gomock.Call {
 }
 
 // SetUp mocks base method.
-func (m *MockProvider) SetUp(arg0 consumer.ConsumerConfig) error {
+func (m *MockProvider) SetUp(arg0 config.ProviderConfig) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetUp", arg0)
 	ret0, _ := ret[0].(error)

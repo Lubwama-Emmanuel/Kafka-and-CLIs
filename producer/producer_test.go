@@ -38,7 +38,7 @@ func TestProduceMessages(t *testing.T) {
 			prepare: func(t *testing.T, f *fields) {
 				f.provider.EXPECT().Produce("test_topic", "message 1").Return(nil)
 
-				f.provider.EXPECT().KafkaMessage().Return(nil).AnyTimes()
+				f.provider.EXPECT().DeliveryReport().Return(nil).AnyTimes()
 
 				f.provider.EXPECT().Flush(15 * 1000)
 			},
@@ -53,7 +53,7 @@ func TestProduceMessages(t *testing.T) {
 			prepare: func(t *testing.T, f *fields) {
 				f.provider.EXPECT().Produce(gomock.Any(), gomock.Any()).Return(assert.AnError)
 
-				f.provider.EXPECT().KafkaMessage().Return(assert.AnError).AnyTimes()
+				f.provider.EXPECT().DeliveryReport().Return(assert.AnError).AnyTimes()
 			},
 			wantErr: assert.Error,
 		},

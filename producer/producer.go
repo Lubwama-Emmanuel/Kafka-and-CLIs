@@ -3,15 +3,17 @@ package producer
 import (
 	"fmt"
 
+	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/config"
 	log "github.com/sirupsen/logrus"
 )
 
 //go:generate mockgen -destination=mocks/mock_producer.go -package=mocks . Provider
 
 type Provider interface {
+	SetUp(config config.ProviderConfig) error
 	Produce(topic, message string) error
 	Flush(timeoutMs int)
-	KafkaMessage() error
+	DeliveryReport() error
 }
 
 type Messsage struct {
@@ -27,10 +29,19 @@ func NewProducer(provider Provider) *Producer {
 	return &Producer{provider: provider}
 }
 
+func (p *Producer) SetUpProvider(config config.ProviderConfig) error {
+	err := p.provider.SetUp(config)
+	if err != nil {
+		return fmt.Errorf("failed to set up provider %w", err)
+	}
+
+	return nil
+}
+
 func (p *Producer) ProduceMessages(topic, message string) error {
 	// Delivery report handler for produced messages.
 	go func() {
-		err := p.provider.KafkaMessage()
+		err := p.provider.DeliveryReport()
 		if err != nil {
 			log.Error("an error occurred")
 		}

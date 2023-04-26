@@ -27,7 +27,7 @@ func (c *CMD) ReceiveCmdRun(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to setup consumer provider: %w", err)
 	}
 
-	if err := c.consumer.ConsumeMessages(channel); err != nil { //nolint:wsl
+	if err := c.consumer.ConsumeMessages(channel); err != nil {
 		log.Error("an error occurred: ", err)
 	}
 

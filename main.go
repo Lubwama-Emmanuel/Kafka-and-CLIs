@@ -18,5 +18,5 @@ func main() {
 
 	cmd.ReceiveInit()
 	cmd.SendInit()
-	cmd.Execute()
+	cmdProvider.Execute()
 }
