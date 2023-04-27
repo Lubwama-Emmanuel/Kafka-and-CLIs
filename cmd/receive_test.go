@@ -60,7 +60,6 @@ func TestRecieve(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 func CreateCMD(t *testing.T) (*cmd.CMD, *mocks.MockProvider, *pmocks.MockProvider) {
@@ -75,5 +74,6 @@ func CreateCMD(t *testing.T) (*cmd.CMD, *mocks.MockProvider, *pmocks.MockProvide
 	p := producer.NewProducer(producerProvider)
 
 	cmdMock := cmd.NewCMD(*c, *p)
+
 	return cmdMock, consumerProvider, producerProvider
 }
