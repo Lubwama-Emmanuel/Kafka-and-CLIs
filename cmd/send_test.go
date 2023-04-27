@@ -56,7 +56,6 @@ func TestSend(t *testing.T) {
 				assert.Fail(t, fmt.Sprintf("Test %v Error not expected but got one:\n"+"error: %q", tc.testName, err))
 				return
 			}
-
 		})
 	}
 }
