@@ -43,7 +43,7 @@ func TestConsumeMessages(t *testing.T) {
 			},
 			prepare: func(t *testing.T, f *fields) {
 				f.provider.EXPECT().SetUp(configs).Return(nil)
-				
+
 				f.provider.EXPECT().Subscribe("test_topic").Return(nil)
 
 				f.provider.EXPECT().ReadMessage(time.Millisecond*100).Return(models.Message{}, nil)
