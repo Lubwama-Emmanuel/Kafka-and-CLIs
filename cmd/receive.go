@@ -49,7 +49,7 @@ func (c *CMD) ReceiveInit() {
 
 	rootCmd.AddCommand(recieveCmd)
 
-	recieveflags := []struct {
+	receiveflags := []struct {
 		flagName string
 		desc     string
 	}{
@@ -59,8 +59,8 @@ func (c *CMD) ReceiveInit() {
 		{"group", "A group to receive messages from"},
 	}
 
-	for i := range recieveflags {
-		recieveCmd.PersistentFlags().String(recieveflags[i].flagName, "", recieveflags[i].desc)
-		recieveCmd.MarkPersistentFlagRequired(recieveflags[i].flagName)
+	for i := range receiveflags {
+		recieveCmd.PersistentFlags().String(receiveflags[i].flagName, "", receiveflags[i].desc)
+		recieveCmd.MarkPersistentFlagRequired(receiveflags[i].flagName)
 	}
 }
