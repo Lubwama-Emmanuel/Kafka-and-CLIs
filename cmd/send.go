@@ -4,9 +4,10 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/config"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/config"
 )
 
 func (c *CMD) SendCmdRun(cmd *cobra.Command, args []string) error {

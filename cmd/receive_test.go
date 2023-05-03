@@ -39,13 +39,21 @@ func TestRecieve(t *testing.T) {
 			},
 			wantErr: assert.Error,
 		},
+		{
+			testName: "error",
+			args:     args{"manu", "localhost:9092", "latest", "group1"},
+			prepare: func(t *testing.T, f *fields) {
+				f.provider.EXPECT().SetUp(gomock.Any()).Return(assert.AnError)
+			},
+			wantErr: assert.Error,
+		},
 	}
 
 	for _, tc := range tt {
 		tc := tc
 		t.Run(tc.testName, func(t *testing.T) {
 			t.Parallel()
-			cmdInstance, provider, _ := CreateCMD(t)
+			cmdInstance, provider, _ := createCMD(t)
 			f := fields{
 				provider: provider,
 			}
@@ -62,7 +70,7 @@ func TestRecieve(t *testing.T) {
 	}
 }
 
-func CreateCMD(t *testing.T) (*cmd.CMD, *mocks.MockProvider, *pmocks.MockProvider) {
+func createCMD(t *testing.T) (*cmd.CMD, *mocks.MockProvider, *pmocks.MockProvider) {
 	ctrl := gomock.NewController(t)
 
 	consumerProvider := mocks.NewMockProvider(ctrl)

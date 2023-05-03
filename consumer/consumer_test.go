@@ -5,12 +5,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/config"
 	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/consumer"
 	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/consumer/mocks"
 	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/models"
-	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
 )
 
 var configs = config.ProviderConfig{

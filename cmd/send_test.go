@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/producer/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/producer/mocks"
 )
 
 func TestSend(t *testing.T) {
@@ -43,7 +44,7 @@ func TestSend(t *testing.T) {
 		t.Run(tc.testName, func(t *testing.T) {
 			t.Parallel()
 
-			cmdInstance, _, provider := CreateCMD(t)
+			cmdInstance, _, provider := createCMD(t)
 			f := fields{
 				provider: provider,
 			}

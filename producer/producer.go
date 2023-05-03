@@ -3,8 +3,9 @@ package producer
 import (
 	"fmt"
 
-	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/config"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/config"
 )
 
 //go:generate mockgen -destination=mocks/mock_producer.go -package=mocks . Provider
