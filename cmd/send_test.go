@@ -37,6 +37,14 @@ func TestSend(t *testing.T) {
 			},
 			wantErr: assert.Error,
 		},
+		{
+			testName: "error",
+			args:     args{"manu", "localhost:9092", "latest", "group1"},
+			prepare: func(t *testing.T, f *fields) {
+				f.provider.EXPECT().SetUp(gomock.Any()).Return(assert.AnError)
+			},
+			wantErr: assert.Error,
+		},
 	}
 
 	for _, tc := range tt {
