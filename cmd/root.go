@@ -3,7 +3,6 @@ package cmd
 import (
 	"os"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/Lubwama-Emmanuel/Kafka-and-CLIs/consumer"
@@ -26,11 +25,6 @@ func NewCMD(consumer consumer.Consumer, producer producer.Producer) *CMD {
 var rootCmd = &cobra.Command{
 	Use:   "Kafka-and-CLIs",
 	Short: "CLI with Kafka",
-	Run:   RootCmdRun,
-}
-
-func RootCmdRun(cmd *cobra.Command, args []string) {
-	log.Info("Hello, World!")
 }
 
 func Execute() {
